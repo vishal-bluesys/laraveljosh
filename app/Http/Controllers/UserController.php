@@ -5,9 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests;
 use Illuminate\Http\Request;
+use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Hash;
 use App\User;
 use Session;
 use App\Role;
+use Auth;
+use File;
 class UserController extends Controller
 {
     public function __construct()
@@ -92,6 +96,12 @@ class UserController extends Controller
 				}
 				])
 				
+			->setColumn('pic', 'Profile Image', [
+				 'wrapper'     => function ($value, $row) {
+					return "<center> <img src='".url('images/profile')."/".$row->pic."' width='35'
+                                 class='img-circle img-responsive' height='35' alt='riot'></center>";
+				}
+				])	 
 			->setActionColumn([
 				'wrapper' => function ($value, $row) {
 					return "  <a href='".url('/user/edit')."/".$row->id."' title='Edit' class='btn btn-xs'><span class='glyphicon glyphicon-pencil' aria-hidden='true'></span></a>
@@ -132,6 +142,7 @@ class UserController extends Controller
 		 'email'=>$request->input('email'),
 		 'password'=>bcrypt($request->input('password')),
 		 'role_id'=>$request->input('role'),
+		 'pic'=>'default_user.png',
 		 'status'=>$request->input('status'),
 		 'created_at'=>date('Y-m-d')		
 		]);		
@@ -216,4 +227,126 @@ class UserController extends Controller
 	}
 	
 	
+	public function showProfile(){
+		$id = Auth::guard('web')->user()->id;
+		$user = User::with('role')->where('id',$id)->first();
+		
+		$role = Role::All();
+		$title = "Show User Profile";
+		return view('users.user_profile',compact('user','title','role'));
+		
+	}
+	
+	
+	
+	 public function saveProfileimage(Request $request)
+	{
+		
+    $validator = Validator::make($request->all(), [
+		            'profilepic' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+		
+		if($validator->fails()){
+			 return back()
+                        ->withErrors($validator)
+                        ->withInput();
+		}
+		
+        $image 			= 	$request->file('profilepic');
+		$id             =   $request->input('id');
+        $resizedImage 	= 	$this->resize($image, '200', $id);
+        
+        if(!$resizedImage)
+        {
+        	return redirect()->back()->withError('Could not upload Image');
+        }
+		Session::flash('success', 'Uploaded successfully');
+    	return back();
+	}
+   
+   
+   	private function resize($image, $size, $id)
+    {
+    	try 
+    	{
+    		$extension 		= 	$image->getClientOriginalExtension();
+    		$imageRealPath 	= 	$image->getRealPath();
+    		$imagename 		= 	$id.'_profile'. $image->getClientOriginalName();
+			$exist = User::where('id',$id)->first();
+			if($exist){
+				$pathToFile = 'images/profile/'.$exist->pic;
+			
+			    File::delete($pathToFile);
+			}
+			
+	    	
+	    	//$imageManager = new ImageManager(); // use this if you don't want facade style code
+    		//$img = $imageManager->make($imageRealPath);
+	    
+	    	$img = Image::make($imageRealPath); // use this if you want facade style code
+	    	$img->resize(intval($size), null, function($constraint) {
+	    		 $constraint->aspectRatio();
+	    	});
+			
+			
+	
+				
+					User::where('id',$id)->update([
+					 'pic'=>$imagename,
+					 'updated_at'=>date('Y-m-d'),
+					]);
+					
+			
+			
+	    	return $img->save(public_path('images/profile'). '/'. $imagename);
+    	}
+    	catch(Exception $e)
+    	{
+    		return false;
+    	}
+
+    }
+	
+	
+	public function ChangePassword(){
+		
+		 return view('users.change_password');
+		
+	}
+	
+	public function updatePassword(Request $request){
+		
+		$id = Auth::guard('web')->user()->id;
+	   
+	   	   $validator = Validator::make($request->all(), [
+            'cpassword'=>'required',
+            'password'=>'required|case_diff|numbers|letters|symbols',
+			             
+        ]);
+		
+		if($validator->fails()){
+			 return back()
+                        ->withErrors($validator)
+                        ->withInput();
+		}
+	
+	 $user =  User::where('id',$id)->first();
+	 
+	 if(Hash::check($request->input('cpassword'),$user->password)){
+		if(!Hash::check($request->input('password'),$user->password)){
+			
+			$change =  User::where('id',$id)->update(['password'=>bcrypt($request->input('password'))]);
+			Session::flash('success', 'Password Change successfully');
+		     return back();
+		}else{
+			Session::flash('error', 'You Entered Current password and New password are same');
+		    return back();
+			
+		} 
+		 
+	 }else{
+		  Session::flash('error', 'Current Password incorrect');
+		   return back();
+	 }
+	}
 }

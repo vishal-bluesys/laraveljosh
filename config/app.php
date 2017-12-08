@@ -168,7 +168,7 @@ return [
          */
         Laravel\Tinker\TinkerServiceProvider::class,
 		Cartalyst\Sentinel\Laravel\SentinelServiceProvider::class,
-
+       Intervention\Image\ImageServiceProvider::class,
         /*
          * Application Service Providers...
          */
@@ -178,6 +178,7 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         Aginev\Datagrid\DatagridServiceProvider::class,
+		\Schuppo\PasswordStrength\PasswordStrengthServiceProvider::class,
     ],
 
     /*
@@ -232,6 +233,7 @@ return [
 		'Reminder'   => Cartalyst\Sentinel\Laravel\Facades\Reminder::class,
 		'Sentinel'   => Cartalyst\Sentinel\Laravel\Facades\Sentinel::class,
 		'Datagrid' => Aginev\Datagrid\Datagrid::class,
+		'Image' => Intervention\Image\Facades\Image::class
     ],
 
 ];

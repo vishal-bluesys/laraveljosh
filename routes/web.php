@@ -38,3 +38,7 @@ Route::post('/add/user', 'UserController@addUser');
 Route::get('/user/edit/{id}', 'UserController@showEdit');
 Route::post('update/user', 'UserController@updateUser');
 Route::get('/user/delete/{id}', 'UserController@deleteUser');
+Route::get('/user/profile','UserController@showProfile');
+Route::post('/user/profile/upload','UserController@saveProfileimage');
+Route::get('/user/change/password','UserController@ChangePassword');
+Route::post('/update/password','UserController@updatePassword');

@@ -28,7 +28,7 @@
 <body class="skin-josh">
 <header class="header">
     <a href="{{url('/home')}}" class="logo">
-        <img src="{{ asset('assets/img/logo.png') }}" alt="logo">
+        <h2 style="color: White; margin-top:6px">HMS</h2><!--<img src="{{ asset('assets/img/logo.png') }}" alt="logo">-->
     </a>
     <nav class="navbar navbar-static-top" role="navigation">
         <!-- Sidebar toggle button-->
@@ -42,7 +42,7 @@
                   <li class="dropdown user user-menu">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         
-                            <img src="{!! asset('assets/img/authors/avatar3.jpg') !!} " width="35"
+                            <img src="{{url('images/profile')}}/{{Auth::guard('web')->user()->pic}} " width="35"
                                  class="img-circle img-responsive pull-left" height="35" alt="riot">
                        
                         <div class="riot">
@@ -57,24 +57,24 @@
                     <ul class="dropdown-menu">
                         <!-- User image -->
                         <li class="user-header bg-light-blue">
-                           
-                                <img src="{!! asset('assets/img/authors/avatar3.jpg') !!}"
+                               
+                                <img src="{{url('images/profile')}}/{{Auth::guard('web')->user()->pic}}"
                                      class="img-responsive img-circle" alt="User Image">
                            
                             <p class="topprofiletext">{{Auth::guard('web')->user()->name}}</p>
                         </li>
                         <!-- Menu Body -->
                        <li>
-                            <a href="#">
+                            <a href="{{url('/user/profile')}}">
                                 <i class="livicon" data-name="user" data-s="18"></i>
                                 My Profile
                             </a>
                         </li>
                         <li role="presentation"></li>
                         <li>
-                            <a href="#">
+                            <a href="{{url('/user/change/password')}}">
                                 <i class="livicon" data-name="gears" data-s="18"></i>
-                                Account Settings
+                               Change Password
                             </a>
                         </li>
                         <!-- Menu Footer-->
